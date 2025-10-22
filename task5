@@ -1,0 +1,144 @@
+// ajax_filter.js: Real-time filtering using JavaScript AJAX
+
+document.addEventListener('DOMContentLoaded', () => {
+    const searchInput = document.getElementById('searchInput');
+    const resultsContainer = document.getElementById('resultsContainer');
+
+    if (searchInput) {
+        // Event Handling: Listen for keyup for real-time results
+        searchInput.addEventListener('keyup', debounce(fetchResults, 300));
+    }
+
+    // Debounce function to limit API calls while the user types
+    function debounce(func, delay) {
+        let timeoutId;
+        return function(...args) {
+            clearTimeout(timeoutId);
+            timeoutId = setTimeout(() => func.apply(this, args), delay);
+        };
+    }
+
+    function fetchResults() {
+        const searchTerm = searchInput.value.trim();
+        
+        // Construct the data to be sent (can use URLSearchParams for GET or FormData for POST)
+        const formData = new FormData();
+        formData.append('search', searchTerm);
+
+        // AJAX Request using Fetch API
+        fetch('api/filter_data.php', {
+            method: 'POST', // Using POST is generally safer for data submission
+            body: formData 
+        })
+        .then(response => response.text()) // Get the raw HTML/text response
+        .then(data => {
+            // Update the results area with the HTML returned from the server
+            resultsContainer.innerHTML = data;
+        })
+        .catch(error => {
+            console.error('Error fetching data:', error);
+            resultsContainer.innerHTML = `<p class="alert alert-danger">Error loading results.</p>`;
+        });
+    }
+
+    // Initial load of all results
+    fetchResults();
+});
+<?php
+// api/filter_data.php: Backend script for AJAX real-time search
+
+require_once '../config.php'; // Use the secure config from Task 3/4
+
+// 1. Get the search term from the POST request
+$searchTerm = isset($_POST['search']) ? "%" . trim($_POST['search']) . "%" : "%";
+
+// 2. Prepare the secure SQL query
+// Example for a Job Board: search by job title or description
+$sql = "SELECT title, company, location, description FROM jobs WHERE title LIKE ? OR description LIKE ? LIMIT 10";
+
+// Start output buffering (will return HTML snippets)
+ob_start();
+
+if ($stmt = $conn->prepare($sql)) {
+    // SECURITY: Bind parameters for LIKE clause
+    $stmt->bind_param("ss", $searchTerm, $searchTerm);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    if ($result->num_rows > 0) {
+        while ($job = $result->fetch_assoc()) {
+            // Output the result as a styled HTML card (to be returned to JS)
+            echo "<div class='job-card card mb-3'>";
+            echo "<div class='card-body'>";
+            echo "<h5 class='card-title'>" . htmlspecialchars($job['title']) . " - " . htmlspecialchars($job['company']) . "</h5>";
+            echo "<p class='card-text'><small class='text-muted'>" . htmlspecialchars($job['location']) . "</small></p>";
+            echo "<p class='card-text'>" . substr(htmlspecialchars($job['description']), 0, 100) . "...</p>";
+            echo "</div>";
+            echo "</div>";
+        }
+    } else {
+        echo "<p class='text-center mt-4'>No matching results found.</p>";
+    }
+    $stmt->close();
+} else {
+    // Critical error handling
+    echo "<p class='text-danger'>Error preparing statement: " . $conn->error . "</p>";
+}
+
+$conn->close();
+
+// 3. Send the buffered HTML output back to the AJAX request
+echo ob_get_clean();
+?>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+
+<div class="container-fluid mt-4">
+    <h3>System Analytics Overview</h3>
+    
+    <div class="row">
+        <div class="col-md-6 mb-4">
+            <div class="card shadow">
+                <div class="card-header">User Registration Trend</div>
+                <div class="card-body">
+                    <canvas id="registrationChart"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6 mb-4">
+            </div>
+    </div>
+</div>
+// custom_charts.js: Integrating Chart.js
+
+document.addEventListener('DOMContentLoaded', () => {
+
+    // 1. Data Retrieval (In a real scenario, this data is fetched from a PHP/DB script)
+    const monthlyData = {
+        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+        datasets: [{
+            label: 'New Users',
+            backgroundColor: 'rgba(0, 123, 255, 0.5)',
+            borderColor: '#007bff',
+            data: [50, 65, 80, 75, 90, 110], // Static data for example
+        }]
+    };
+    
+    // 2. Get the canvas context
+    const ctx = document.getElementById('registrationChart');
+    if (ctx) {
+        // 3. Create the Chart instance
+        new Chart(ctx, {
+            type: 'bar', // Type of chart (line, bar, pie, etc.)
+            data: monthlyData,
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    }
+});
