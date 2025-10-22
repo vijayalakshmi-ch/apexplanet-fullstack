@@ -1,0 +1,205 @@
+<?php
+// test.php: Simple PHP test file
+echo "<h1>Hello from PHP!</h1>";
+
+// Displaying server information (optional, but good for verification)
+echo "<p>PHP is working!</p>";
+echo "<h2>Server Variables:</h2>";
+echo "<p>Server Software: " . $_SERVER['SERVER_SOFTWARE'] . "</p>";
+
+// You can check your PHP version
+echo "<p>PHP Version: " . phpversion() . "</p>";
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Personal Portfolio - Task 1</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>[Your Name] - Web Developer</h1>
+        <nav>
+            <a href="#about">About</a>
+            <a href="#skills">Skills</a>
+            <a href="#contact">Contact</a>
+        </nav>
+    </header>
+
+    <main>
+        <section id="about">
+            <h2>About Me</h2>
+            <p>A passionate learner focused on mastering HTML5, CSS3, JavaScript, and the LAMP stack.</p>
+        </section>
+
+        <section id="skills">
+            <h2>Core Skills</h2>
+            <table>
+                <thead>
+                    <tr><th>Technology</th><th>Level</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>HTML5</td><td>Fundamental</td></tr>
+                    <tr><td>CSS3</td><td>Fundamental</td></tr>
+                    <tr><td>JavaScript</td><td>Basic</td></tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section id="contact">
+            <h2>Contact Form (HTML Form Fundamentals)</h2>
+            <form id="contact-form">
+                <label for="name">Name:</label>
+                <input type="text" id="name" name="name" required>
+
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" required>
+
+                <label for="message">Message:</label>
+                <textarea id="message" name="message" rows="4" required></textarea>
+                
+                <button type="submit">Send Message</button>
+            </form>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 | Task 1 Portfolio</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
+/* style.css: CSS3 Styling Fundamentals */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f9; /* Colors & Backgrounds */
+    color: #333;
+}
+
+header {
+    background: linear-gradient(to right, #007bff, #0056b3); /* Gradients */
+    color: white;
+    padding: 20px;
+    /* Flexbox for Header Layout */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+nav a {
+    color: white;
+    text-decoration: none;
+    margin-left: 15px;
+    padding: 5px 10px;
+    border: 1px solid transparent;
+    transition: background-color 0.3s; /* CSS Animations & Transitions */
+}
+
+nav a:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+    border: 1px solid white; /* Borders */
+}
+
+main {
+    padding: 20px;
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+section {
+    margin-bottom: 40px;
+    padding: 20px;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Shadows */
+}
+
+/* Example of Media Queries for Responsive Design */
+@media (max-width: 600px) {
+    header {
+        flex-direction: column;
+        text-align: center;
+    }
+    nav {
+        margin-top: 10px;
+    }
+    nav a {
+        display: block;
+        margin: 5px 0;
+    }
+}
+
+// script.js: JavaScript Basics (Variables, DOM, Validation)
+
+// 1. Variables and Loops (Simple example)
+let formSubmittedCount = 0;
+
+// 2. DOM Manipulation (getElementbyId)
+const contactForm = document.getElementById('contact-form');
+const nameInput = document.getElementById('name');
+
+// 3. Event Handling (submit event) and Form Validation
+contactForm.addEventListener('submit', function(event) {
+    event.preventDefault(); // Stop the default form submission
+
+    // Basic Validation Check (Required field check)
+    if (nameInput.value.trim() === "") {
+        alert("Please enter your name!");
+        nameInput.focus();
+        return; // Stop the process
+    }
+
+    // A slightly more complex check (e.g., email format)
+    const emailInput = document.getElementById('email');
+    const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
+    if (!emailPattern.test(emailInput.value)) {
+        alert("Please enter a valid email address!");
+        emailInput.focus();
+        return;
+    }
+
+    // If validation passes
+    formSubmittedCount++;
+    console.log("Form submitted successfully! Count: " + formSubmittedCount);
+    
+    // 4. DOM Manipulation (querySelector) to update a message
+    let successMessage = document.querySelector('#contact h2');
+    successMessage.textContent = 'Message Sent! Thank you.';
+    
+    // In a real app, you would use AJAX here to send data to a PHP script
+    contactForm.reset();
+});
+
+console.log("JavaScript script loaded successfully!");
+-- 1. Create a database
+CREATE DATABASE portfolio_db;
+
+-- Use the newly created database
+USE portfolio_db;
+
+-- 2. Create a table for messages/contacts
+CREATE TABLE contacts (
+    id INT AUTO_INCREMENT PRIMARY KEY, -- Primary Key
+    name VARCHAR(100) NOT NULL,
+    email VARCHAR(100) NOT NULL,
+    message TEXT,
+    submission_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 3. Insert a record
+INSERT INTO contacts (name, email, message)
+VALUES ('Test User', 'test@example.com', 'This is a test message from Task 1.');
+
+-- 4. Select records (Read)
+SELECT * FROM contacts;
+
+-- 5. Update a record
+UPDATE contacts SET message = 'Updated test message.' WHERE name = 'Test User';
+
+-- 6. Delete a record
+DELETE FROM contacts WHERE name = 'Test User';
